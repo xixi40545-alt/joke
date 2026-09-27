@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Portal - Login</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for clean iconography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphic card styling */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth page transitions */
+        .fade-transition {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .fade-in {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Custom glow effects */
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="text-slate-100 flex items-center justify-center p-4 relative overflow-x-hidden">
+
+    <!-- Background glowing shapes for visual depth -->
+    <div class="absolute top-1/4 left-10 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- LOGIN CONTAINER -->
+    <main id="loginCard" class="w-full max-w-md glass-card rounded-2xl p-8 shadow-2xl z-10 fade-transition fade-in">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/30 text-indigo-400 mb-4 border border-indigo-500/30">
+                <i class="fa-solid font-play fa-circle-play text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-white">アカウントにログイン</h1>
+            <p class="text-sm text-slate-400 mt-1">動画を視聴するにはログインしてください</p>
+        </div>
+
+        <form id="loginForm" novalidate class="space-y-6">
+            <!-- Email Input -->
+            <div>
+                <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                    メールアドレス
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-regular fa-envelope text-sm"></i>
+                    </div>
+                    <input type="email" id="email" required
+                        placeholder="name@example.com"
+                        class="w-full pl-10 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder-slate-500 transition-all">
+                </div>
+                <!-- Validation Error Message -->
+                <p id="emailError" class="hidden mt-2 text-xs text-rose-400 flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>有効なメールアドレスを入力してください (例: name@example.com)</span>
+                </p>
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                    パスワード
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </div>
+                    <input type="password" id="password" required
+                        placeholder="••••••••"
+                        class="w-full pl-10 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder-slate-500 transition-all">
+                </div>
+                <!-- Validation Error Message -->
+                <p id="passwordError" class="hidden mt-2 text-xs text-rose-400 flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>パスワードを入力してください</span>
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm rounded-xl shadow-lg glow-effect focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
+                ログインして再生
+            </button>
+        </form>
+    </main>
+
+    <!-- VIDEO CONTAINER (Initially Hidden) -->
+    <main id="videoCard" class="hidden w-full max-w-4xl glass-card rounded-2xl overflow-hidden shadow-2xl z-10 fade-transition fade-out">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700/50 bg-slate-900/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-xs font-medium text-slate-400 ml-2">マイ動画ライブラリ</span>
+            </div>
+            <button id="logoutBtn" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                <i class="fa-solid fa-right-from-bracket"></i> ログアウト
+            </button>
+        </div>
+
+        <!-- Video Frame Container -->
+        <div class="relative bg-black aspect-video flex items-center justify-center group">
+            <video id="videoPlayer" class="w-full h-full object-contain">
+                <source src="Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) - Trim.mp4" type="video/mp4">
+                お使いのブラウザは動画再生に対応していません。
+            </video>
+
+            <!-- Autoplay overlay notice (if browser blocks audio autoplay) -->
+            <div id="unmuteOverlay" class="hidden absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 transition-opacity">
+                <i class="fa-solid fa-volume-xmark text-5xl text-indigo-400 mb-4 animate-bounce"></i>
+                <h3 class="text-lg font-semibold text-white mb-2">音声がミュートされています</h3>
+                <p class="text-sm text-slate-300 mb-6 max-w-sm">ブラウザの自動再生の仕様により、クリックして音声をオンにしてください。</p>
+                <button id="unmuteBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg">
+                    音声をオンにする
+                </button>
+            </div>
+        </div>
+
+        <!-- Video Info Footer -->
+        <div class="p-6 bg-slate-900/60">
+            <h2 class="text-xl font-bold text-white mb-1">Rick Astley - Never Gonna Give You Up</h2>
+            <p class="text-xs text-slate-400">Official Video (4K Remaster) - Trimmed</p>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            
+            const loginCard = document.getElementById('loginCard');
+            const videoCard = document.getElementById('videoCard');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            const unmuteOverlay = document.getElementById('unmuteOverlay');
+            const unmuteBtn = document.getElementById('unmuteBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            /**
+             * メールアドレス形式の徹底チェック（RFC5322に準拠した基本正規表現）
+             */
+            function isValidEmail(email) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                return emailRegex.test(email.trim());
+            }
+
+            // インプット入力中のエラー解除
+            emailInput.addEventListener('input', () => {
+                emailError.classList.add('hidden');
+                emailInput.classList.remove('border-rose-500');
+            });
+
+            passwordInput.addEventListener('input', () => {
+                passwordError.classList.add('hidden');
+                passwordInput.classList.remove('border-rose-500');
+            });
+
+            // ログイン処理
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                let isValid = true;
+                const emailValue = emailInput.value;
+                const passwordValue = passwordInput.value;
+
+                // メールアドレスの検証
+                if (!emailValue || !isValidEmail(emailValue)) {
+                    emailError.classList.remove('hidden');
+                    emailInput.classList.add('border-rose-500');
+                    isValid = false;
+                }
+
+                // パスワードの検証 (空でなければOK)
+                if (!passwordValue.trim()) {
+                    passwordError.classList.remove('hidden');
+                    passwordInput.classList.add('border-rose-500');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                // 画面遷移（フェードアウト ➔ フェードイン）
+                loginCard.classList.remove('fade-in');
+                loginCard.classList.add('fade-out');
+
+                setTimeout(() => {
+                    loginCard.classList.add('hidden');
+                    videoCard.classList.remove('hidden');
+                    
+                    // 次のフレームでフェードイン
+                    requestAnimationFrame(() => {
+                        videoCard.classList.remove('fade-out');
+                        videoCard.classList.add('fade-in');
+                        startVideoPlayback();
+                    });
+                }, 500);
+            });
+
+            /**
+             * 動画再生およびブラウザ自動再生ポリシー対策
+             */
+            function startVideoPlayback() {
+                videoPlayer.controls = true;
+                
+                // 再生試行
+                const playPromise = videoPlayer.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // 再生成功（ミュート状態でないか確認）
+                    }).catch(() => {
+                        // 自動再生制限がかかった場合は、ミュート状態で再生を開始してオーバーレイを表示
+                        videoPlayer.muted = true;
+                        videoPlayer.play();
+                        unmuteOverlay.classList.remove('hidden');
+                    });
+                }
+            }
+
+            // アンミュートボタン処理
+            unmuteBtn.addEventListener('click', () => {
+                videoPlayer.muted = false;
+                unmuteOverlay.classList.add('hidden');
+            });
+
+            // ログアウト処理
+            logoutBtn.addEventListener('click', () => {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+
+                videoCard.classList.remove('fade-in');
+                videoCard.classList.add('fade-out');
+
+                setTimeout(() => {
+                    videoCard.classList.add('hidden');
+                    loginCard.classList.remove('hidden');
+                    
+                    // フォームクリア
+                    loginForm.reset();
+                    
+                    requestAnimationFrame(() => {
+                        loginCard.classList.remove('fade-out');
+                        loginCard.classList.add('fade-in');
+                    });
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
