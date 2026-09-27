@@ -27,12 +27,12 @@
 
         /* Smooth page transitions */
         .fade-transition {
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
         }
 
         .fade-out {
             opacity: 0;
-            transform: scale(0.95);
+            transform: scale(0.98);
             pointer-events: none;
         }
 
@@ -57,7 +57,7 @@
     <main id="loginCard" class="w-full max-w-md glass-card rounded-2xl p-8 shadow-2xl z-10 fade-transition fade-in">
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/30 text-indigo-400 mb-4 border border-indigo-500/30">
-                <i class="fa-solid font-play fa-circle-play text-3xl"></i>
+                <i class="fa-solid fa-circle-play text-3xl"></i>
             </div>
             <h1 class="text-2xl font-bold tracking-tight text-white">アカウントにログイン</h1>
             <p class="text-sm text-slate-400 mt-1">動画を視聴するにはログインしてください</p>
@@ -104,10 +104,10 @@
                 </p>
             </div>
 
-            <!-- Submit Button -->
+            <!-- Submit Button (ログインのみに変更) -->
             <button type="submit" 
                 class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm rounded-xl shadow-lg glow-effect focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
-                ログインして再生
+                ログイン
             </button>
         </form>
     </main>
@@ -129,8 +129,8 @@
 
         <!-- Video Frame Container -->
         <div class="relative bg-black aspect-video flex items-center justify-center group">
-            <video id="videoPlayer" class="w-full h-full object-contain">
-                <source src="Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) - Trim.mp4" type="video/mp4">
+            <video id="videoPlayer" class="w-full h-full object-contain" controls preload="auto">
+                <source src="movie/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) - Trim.mp4" type="video/mp4">
                 お使いのブラウザは動画再生に対応していません。
             </video>
 
@@ -138,7 +138,7 @@
             <div id="unmuteOverlay" class="hidden absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 transition-opacity">
                 <i class="fa-solid fa-volume-xmark text-5xl text-indigo-400 mb-4 animate-bounce"></i>
                 <h3 class="text-lg font-semibold text-white mb-2">音声がミュートされています</h3>
-                <p class="text-sm text-slate-300 mb-6 max-w-sm">ブラウザの自動再生の仕様により、クリックして音声をオンにしてください。</p>
+                <p class="text-sm text-slate-300 mb-6 max-w-sm">ブラウザの自動再生ポリシーのため、ボタンを押して音声を再生してください。</p>
                 <button id="unmuteBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-lg">
                     音声をオンにする
                 </button>
@@ -147,7 +147,7 @@
 
         <!-- Video Info Footer -->
         <div class="p-6 bg-slate-900/60">
-            <h2 class="text-xl font-bold text-white mb-1">movie/Rick Astley - Never Gonna Give You Up</h2>
+            <h2 class="text-xl font-bold text-white mb-1">Rick Astley - Never Gonna Give You Up</h2>
             <p class="text-xs text-slate-400">Official Video (4K Remaster) - Trimmed</p>
         </div>
     </main>
@@ -168,8 +168,11 @@
             const unmuteBtn = document.getElementById('unmuteBtn');
             const logoutBtn = document.getElementById('logoutBtn');
 
+            // ページロード時に事前に動画データを事前読み込み（ラグ防止）
+            videoPlayer.load();
+
             /**
-             * メールアドレス形式の徹底チェック（RFC5322に準拠した基本正規表現）
+             * メールアドレス形式のチェック
              */
             function isValidEmail(email) {
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -202,7 +205,7 @@
                     isValid = false;
                 }
 
-                // パスワードの検証 (空でなければOK)
+                // パスワードの検証
                 if (!passwordValue.trim()) {
                     passwordError.classList.remove('hidden');
                     passwordInput.classList.add('border-rose-500');
@@ -211,7 +214,10 @@
 
                 if (!isValid) return;
 
-                // 画面遷移（フェードアウト ➔ フェードイン）
+                // 【ラグ排除のポイント】ボタンを押した瞬間にユーザー操作(Clickイベント)のコンテキストで即座に再生命令を発行
+                startVideoPlaybackImmediately();
+
+                // カードの切替
                 loginCard.classList.remove('fade-in');
                 loginCard.classList.add('fade-out');
 
@@ -219,29 +225,25 @@
                     loginCard.classList.add('hidden');
                     videoCard.classList.remove('hidden');
                     
-                    // 次のフレームでフェードイン
                     requestAnimationFrame(() => {
                         videoCard.classList.remove('fade-out');
                         videoCard.classList.add('fade-in');
-                        startVideoPlayback();
                     });
-                }, 500);
+                }, 200);
             });
 
             /**
-             * 動画再生およびブラウザ自動再生ポリシー対策
+             * ボタン押下直後に即座に再生を開始
              */
-            function startVideoPlayback() {
-                videoPlayer.controls = true;
+            function startVideoPlaybackImmediately() {
+                videoPlayer.currentTime = 0;
                 
-                // 再生試行
+                // 再生開始
                 const playPromise = videoPlayer.play();
 
                 if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        // 再生成功（ミュート状態でないか確認）
-                    }).catch(() => {
-                        // 自動再生制限がかかった場合は、ミュート状態で再生を開始してオーバーレイを表示
+                    playPromise.catch(() => {
+                        // ブラウザの制限で音声付き自動再生が拒否された場合はミュートで再生しオーバーレイ表示
                         videoPlayer.muted = true;
                         videoPlayer.play();
                         unmuteOverlay.classList.remove('hidden');
@@ -259,6 +261,7 @@
             logoutBtn.addEventListener('click', () => {
                 videoPlayer.pause();
                 videoPlayer.currentTime = 0;
+                unmuteOverlay.classList.add('hidden');
 
                 videoCard.classList.remove('fade-in');
                 videoCard.classList.add('fade-out');
@@ -267,14 +270,13 @@
                     videoCard.classList.add('hidden');
                     loginCard.classList.remove('hidden');
                     
-                    // フォームクリア
                     loginForm.reset();
                     
                     requestAnimationFrame(() => {
                         loginCard.classList.remove('fade-out');
                         loginCard.classList.add('fade-in');
                     });
-                }, 500);
+                }, 200);
             });
         });
     </script>
